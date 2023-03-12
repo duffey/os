@@ -2,6 +2,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "pci.h"
+
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
 #error "You are not using a cross-compiler, you will most certainly run into trouble"
@@ -130,15 +132,47 @@ void terminal_writestring(const char* data)
 	terminal_write(data, strlen(data));
 }
 
+char ctox(unsigned char c) {
+	if (c < 10) return '0' + c;
+	return 'A' + (c - 10);
+}
+
+void print_vendor_id(uint16_t vendor_id)
+{
+	uint8_t hh = (uint8_t) (vendor_id >> 12);
+	uint8_t hl = (uint8_t) ((vendor_id >> 8) & 0x0F);
+	uint8_t lh = (uint8_t) ((vendor_id >> 4) & 0x0F);
+	uint8_t ll = (uint8_t) (vendor_id & 0x0F);
+	char s[7];
+
+	s[0] = '0';
+	s[1] = 'x';
+	s[2] = ctox(hh);
+	s[3] = ctox(hl);
+	s[4] = ctox(lh);
+	s[5] = ctox(ll);
+	s[6] = '\0';
+
+	terminal_writestring(s);
+}
+
 void kernel_main(void)
 {
 	/* Initialize terminal interface */
 	terminal_initialize();
 
-	/* Newline support is left as an exercise. */
-	for (int i = 0; i < 60; i++) {
-		for (int j = 0; j < i; j++)
-			terminal_writestring("*");
-		terminal_writestring("\n");
+	uint16_t bus;
+	uint8_t device;
+
+	for (bus = 0; bus < 256; bus++) {
+		for (device = 0; device < 32; device++) {
+			uint16_t vendor_id = pci_get_vendor_id(bus, device);
+			if (vendor_id == 0xFFFF) continue;
+			const char *vendor_name = pci_get_vendor_name(vendor_id);
+			terminal_writestring(vendor_name);
+			terminal_writestring(" ");
+			print_vendor_id(vendor_id);
+			terminal_writestring("\n");
+		}
 	}
 }
