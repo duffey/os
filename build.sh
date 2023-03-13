@@ -1,6 +1,7 @@
+i686-elf-gcc -c ./include/nanoprintf/nanoprintf.c -o nanoprintf.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
 i686-elf-gcc -c pci.c -o pci.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
-i686-elf-gcc -T linker.ld -o myos.bin -ffreestanding -O2 -nostdlib boot.o pci.o kernel.o -lgcc
+i686-elf-gcc -T linker.ld -o myos.bin -ffreestanding -O2 -nostdlib boot.o nanoprintf.o pci.o kernel.o -lgcc
 if grub-file --is-x86-multiboot myos.bin; then
   echo multiboot confirmed
 else

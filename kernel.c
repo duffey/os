@@ -1,7 +1,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdarg.h>
 
+#include "./include/nanoprintf/nanoprintf.h"
 #include "pci.h"
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
@@ -132,28 +134,14 @@ void terminal_writestring(const char* data)
 	terminal_write(data, strlen(data));
 }
 
-char ctox(unsigned char c) {
-	if (c < 10) return '0' + c;
-	return 'A' + (c - 10);
-}
-
-void print_vendor_id(uint16_t vendor_id)
+void terminal_printf(const char *fmt, ...)
 {
-	uint8_t hh = (uint8_t) (vendor_id >> 12);
-	uint8_t hl = (uint8_t) ((vendor_id >> 8) & 0x0F);
-	uint8_t lh = (uint8_t) ((vendor_id >> 4) & 0x0F);
-	uint8_t ll = (uint8_t) (vendor_id & 0x0F);
-	char s[7];
-
-	s[0] = '0';
-	s[1] = 'x';
-	s[2] = ctox(hh);
-	s[3] = ctox(hl);
-	s[4] = ctox(lh);
-	s[5] = ctox(ll);
-	s[6] = '\0';
-
-	terminal_writestring(s);
+	char buffer[1024];
+	va_list val;
+	va_start(val, fmt);
+	npf_vsnprintf(buffer, 1024, fmt, val);
+    va_end(val);
+	terminal_writestring(buffer);
 }
 
 void kernel_main(void)
@@ -163,16 +151,27 @@ void kernel_main(void)
 
 	uint16_t bus;
 	uint8_t device;
+	uint8_t function = 0;
 
 	for (bus = 0; bus < 256; bus++) {
 		for (device = 0; device < 32; device++) {
-			uint16_t vendor_id = pci_get_vendor_id(bus, device);
+			uint16_t vendor_id = get_vendor_id(bus, device, function);
+
 			if (vendor_id == 0xFFFF) continue;
-			const char *vendor_name = pci_get_vendor_name(vendor_id);
-			terminal_writestring(vendor_name);
-			terminal_writestring(" ");
-			print_vendor_id(vendor_id);
+
+			uint16_t device_id = get_device_id(bus, device, function);
+			uint8_t header_type = get_header_type(bus, device, function);
+
+			terminal_printf("%04X %04X %02X", vendor_id, device_id, header_type);
 			terminal_writestring("\n");
+
+			if (header_type != 0x00) continue;
+
+			for (int i = 0; i < 6; i++) {
+				uint32_t bar = get_bar_n(bus, device, function, i);
+
+				terminal_printf("    %08X\n", bar);
+			}
 		}
 	}
 }
