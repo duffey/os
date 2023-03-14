@@ -144,6 +144,31 @@ void terminal_printf(const char *fmt, ...)
 	terminal_writestring(buffer);
 }
 
+uint32_t eeprom_read(volatile uint32_t * eeprom_address, uint8_t address)
+{
+	uint32_t value = 0;
+
+	*eeprom_address = 1 | (((uint32_t) address) << 8);
+	do {
+		value = *eeprom_address;
+	} while (!(value & (1 << 4)));
+	return (uint16_t) ((value >> 16) & 0xFFFF);
+}
+
+void read_mac_address(volatile uint32_t * eeprom_address, uint8_t * mac_address)
+{
+	uint32_t value;
+	value = eeprom_read(eeprom_address, 0);
+	mac_address[0] = value & 0xFF;
+	mac_address[1] = value >> 8;
+	value = eeprom_read(eeprom_address, 1);
+	mac_address[2] = value & 0xFF;
+	mac_address[3] = value >> 8;
+	value = eeprom_read(eeprom_address, 2);
+	mac_address[4] = value & 0xFF;
+	mac_address[5] = value >> 8;
+}
+
 void kernel_main(void)
 {
 	/* Initialize terminal interface */
@@ -161,9 +186,10 @@ void kernel_main(void)
 				continue;
 
 			uint16_t device_id = get_device_id(bus, device, function);
+			uint16_t command = get_command(bus, device, function);
 			uint8_t header_type = get_header_type(bus, device, function);
 
-			terminal_printf("%04X %04X %02X", vendor_id, device_id, header_type);
+			terminal_printf("bus: %d device %d %04X %04X %04X %02X", bus, device, vendor_id, device_id, command, header_type);
 			terminal_writestring("\n");
 
 			if (header_type != 0x00)
@@ -176,4 +202,18 @@ void kernel_main(void)
 			}
 		}
 	}
+
+	uint32_t memory_base_address = get_bar_n(0, 3, 0, 0) & ~3;
+	volatile uint32_t *eeprom_address = (uint32_t *) (memory_base_address + 0x0014);
+
+	terminal_printf("Memory Base Address: %08X\n", memory_base_address);
+	terminal_printf("EEPROM: %p\n", eeprom_address);
+
+	uint8_t mac_address[6];
+	read_mac_address(eeprom_address, mac_address);
+	terminal_printf("MAC address %02X:%02X:%02X:%02X:%02X:%02X\n", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5]);
+
+	volatile uint32_t *mta_address = (uint32_t *) (memory_base_address + 0x5200);
+	for (int i = 0; i < 0x80; i++)
+		*mta_address = 0;
 }

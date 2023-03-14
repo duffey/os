@@ -7,6 +7,8 @@ uint16_t get_vendor_id(uint8_t bus, uint8_t device, uint8_t function);
 
 uint16_t get_device_id(uint8_t bus, uint8_t device, uint8_t function);
 
+uint8_t get_command(uint8_t bus, uint8_t device, uint8_t function);
+
 uint8_t get_header_type(uint8_t bus, uint8_t device, uint8_t function);
 
 uint32_t get_bar_n(uint8_t bus, uint8_t device, uint8_t function, int n);

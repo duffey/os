@@ -43,6 +43,11 @@ uint16_t get_device_id(uint8_t bus, uint8_t device, uint8_t function)
 	return pci_read_word(bus, device, function, 2);
 }
 
+uint8_t get_command(uint8_t bus, uint8_t device, uint8_t function)
+{
+	return pci_read_word(bus, device, function, 4);
+}
+
 uint8_t get_header_type(uint8_t bus, uint8_t device, uint8_t function)
 {
 	return (uint8_t) pci_read_word(bus, device, function, 14);
