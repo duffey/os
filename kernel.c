@@ -46,7 +46,7 @@ static inline uint16_t vga_entry(unsigned char uc, uint8_t color)
 	return (uint16_t) uc | (uint16_t) color << 8;
 }
 
-size_t strlen(const char* str)
+size_t strlen(const char *str)
 {
 	size_t len = 0;
 	while (str[len])
@@ -60,14 +60,14 @@ static const size_t VGA_HEIGHT = 25;
 size_t terminal_row;
 size_t terminal_column;
 uint8_t terminal_color;
-uint16_t* terminal_buffer;
+uint16_t *terminal_buffer;
 
 void terminal_initialize(void)
 {
 	terminal_row = 0;
 	terminal_column = 0;
 	terminal_color = vga_entry_color(VGA_COLOR_LIGHT_GREY, VGA_COLOR_BLACK);
-	terminal_buffer = (uint16_t*) 0xB8000;
+	terminal_buffer = (uint16_t *) 0xB8000;
 	for (size_t y = 0; y < VGA_HEIGHT; y++) {
 		for (size_t x = 0; x < VGA_WIDTH; x++) {
 			const size_t index = y * VGA_WIDTH + x;
@@ -123,13 +123,13 @@ void terminal_putchar(char c)
 	}
 }
 
-void terminal_write(const char* data, size_t size)
+void terminal_write(const char *data, size_t size)
 {
 	for (size_t i = 0; i < size; i++)
 		terminal_putchar(data[i]);
 }
 
-void terminal_writestring(const char* data)
+void terminal_writestring(const char *data)
 {
 	terminal_write(data, strlen(data));
 }
@@ -140,7 +140,7 @@ void terminal_printf(const char *fmt, ...)
 	va_list val;
 	va_start(val, fmt);
 	npf_vsnprintf(buffer, 1024, fmt, val);
-    va_end(val);
+	va_end(val);
 	terminal_writestring(buffer);
 }
 
@@ -157,7 +157,8 @@ void kernel_main(void)
 		for (device = 0; device < 32; device++) {
 			uint16_t vendor_id = get_vendor_id(bus, device, function);
 
-			if (vendor_id == 0xFFFF) continue;
+			if (vendor_id == 0xFFFF)
+				continue;
 
 			uint16_t device_id = get_device_id(bus, device, function);
 			uint8_t header_type = get_header_type(bus, device, function);
@@ -165,7 +166,8 @@ void kernel_main(void)
 			terminal_printf("%04X %04X %02X", vendor_id, device_id, header_type);
 			terminal_writestring("\n");
 
-			if (header_type != 0x00) continue;
+			if (header_type != 0x00)
+				continue;
 
 			for (int i = 0; i < 6; i++) {
 				uint32_t bar = get_bar_n(bus, device, function, i);
