@@ -243,7 +243,7 @@ void encode_gdt_entry(uint8_t * target, uint32_t base, uint32_t limit, uint8_t a
 	target[6] |= (flags << 4);
 }
 
-void setGdt(uint32_t, uint32_t);
+void set_gdt(uint32_t, uint32_t);
 
 void kernel_main(void)
 {
@@ -252,7 +252,7 @@ void kernel_main(void)
 	encode_gdt_entry(gdt + 8, 0, 0xFFFFF, 0x9A, 0xC);
 	encode_gdt_entry(gdt + 16, 0, 0xFFFFF, 0x92, 0xC);
 
-	setGdt(sizeof(gdt) - 1, (uint32_t) gdt);
+	set_gdt(sizeof(gdt) - 1, (uint32_t) gdt);
 	idt_init();
 
 	/* Initialize terminal interface */

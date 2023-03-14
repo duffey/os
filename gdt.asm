@@ -1,8 +1,8 @@
 gdtr DW 0 ; For limit storage
      DD 0 ; For base storage
 
-global setGdt
-setGdt:
+global set_gdt
+set_gdt:
    MOV   AX, [esp + 4]
    MOV   [gdtr], AX
    MOV   EAX, [ESP + 8]
