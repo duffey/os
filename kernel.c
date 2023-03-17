@@ -5,6 +5,7 @@
 
 #include "./include/nanoprintf/nanoprintf.h"
 #include "pci.h"
+#include "pic.h"
 
 /* Check if the compiler thinks you are targeting the wrong operating system. */
 #if defined(__linux__)
@@ -190,8 +191,9 @@ static struct idtr_t idtr;
 void exception_handler(void);
 void exception_handler()
 {
-	terminal_writestring("hello idt");
-	__asm__ volatile ("cli; hlt");	// Completely hangs the computer
+	terminal_writestring("hello idt hey\n");
+	//__asm__ volatile ("cli; hlt");        // Completely hangs the computer
+	//__asm__ volatile ("iret");
 }
 
 void idt_set_descriptor(uint8_t vector, void *isr, uint8_t flags);
@@ -208,6 +210,12 @@ void idt_set_descriptor(uint8_t vector, void *isr, uint8_t flags)
 
 extern void *isr_stub_table[];
 
+void net_handler(void)
+{
+	terminal_writestring("yo\n");
+	__asm__ volatile ("iret");
+}
+
 void idt_init(void);
 void idt_init()
 {
@@ -218,6 +226,7 @@ void idt_init()
 		idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
 		//vectors[vector] = true;
 	}
+	//idt_set_descriptor(35, &net_handler, 0x8E);
 
 	__asm__ volatile ("lidt %0"::"m" (idtr));	// load the new IDT
 	__asm__ volatile ("sti");	// set the interrupt flag
@@ -254,54 +263,61 @@ void kernel_main(void)
 
 	set_gdt(sizeof(gdt) - 1, (uint32_t) gdt);
 	idt_init();
+	pic_remap(0x20, 0x28);
 
 	/* Initialize terminal interface */
 	terminal_initialize();
 
-	__asm__("int $0");
+	__asm__("int $1");
 
-	/*
-	   uint16_t bus;
-	   uint8_t device;
-	   uint8_t function = 0;
+/*
+	uint16_t bus;
+	uint8_t device;
+	uint8_t function = 0;
 
-	   for (bus = 0; bus < 256; bus++) {
-	   for (device = 0; device < 32; device++) {
-	   uint16_t vendor_id = get_vendor_id(bus, device, function);
+	for (bus = 0; bus < 256; bus++) {
+		for (device = 0; device < 32; device++) {
+			uint16_t vendor_id = get_vendor_id(bus, device, function);
 
-	   if (vendor_id == 0xFFFF)
-	   continue;
+			if (vendor_id == 0xFFFF)
+				continue;
 
-	   uint16_t device_id = get_device_id(bus, device, function);
-	   uint16_t command = get_command(bus, device, function);
-	   uint8_t header_type = get_header_type(bus, device, function);
+			uint16_t device_id = get_device_id(bus, device, function);
+			uint16_t command = get_command(bus, device, function);
+			uint8_t header_type = get_header_type(bus, device, function);
 
-	   terminal_printf("bus: %d device %d %04X %04X %04X %02X", bus, device, vendor_id, device_id, command, header_type);
-	   terminal_writestring("\n");
+			terminal_printf("bus: %d device %d %04X %04X %04X %02X", bus, device, vendor_id, device_id, command, header_type);
+			terminal_writestring("\n");
 
-	   if (header_type != 0x00)
-	   continue;
+			if (header_type != 0x00)
+				continue;
 
-	   for (int i = 0; i < 6; i++) {
-	   uint32_t bar = get_bar_n(bus, device, function, i);
+			for (int i = 0; i < 6; i++) {
+				uint32_t bar = get_bar_n(bus, device, function, i);
 
-	   terminal_printf("    %08X\n", bar);
-	   }
-	   }
-	   }
+				terminal_printf("    %08X\n", bar);
+			}
+		}
+	}
 
-	   uint32_t memory_base_address = get_bar_n(0, 3, 0, 0) & ~3;
-	   volatile uint32_t *eeprom_address = (uint32_t *) (memory_base_address + 0x0014);
+	uint8_t interrupt_line = get_interrupt_line(0, 3, 0);
+	uint8_t interrupt_pin = get_interrupt_pin(0, 3, 0);
 
-	   terminal_printf("Memory Base Address: %08X\n", memory_base_address);
-	   terminal_printf("EEPROM: %p\n", eeprom_address);
+	terminal_printf("Interrupt line: %02X\n", interrupt_line);
+	terminal_printf("Interrupt pin: %02X\n", interrupt_pin);
 
-	   uint8_t mac_address[6];
-	   read_mac_address(eeprom_address, mac_address);
-	   terminal_printf("MAC address %02X:%02X:%02X:%02X:%02X:%02X\n", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5]);
+	uint32_t memory_base_address = get_bar_n(0, 3, 0, 0) & ~3;
+	volatile uint32_t *eeprom_address = (uint32_t *) (memory_base_address + 0x0014);
 
-	   volatile uint32_t *mta_address = (uint32_t *) (memory_base_address + 0x5200);
-	   for (int i = 0; i < 0x80; i++)
-	   *mta_address = 0;
-	 */
+	terminal_printf("Memory Base Address: %08X\n", memory_base_address);
+	terminal_printf("EEPROM: %p\n", eeprom_address);
+
+	uint8_t mac_address[6];
+	read_mac_address(eeprom_address, mac_address);
+	terminal_printf("MAC address %02X:%02X:%02X:%02X:%02X:%02X\n", mac_address[0], mac_address[1], mac_address[2], mac_address[3], mac_address[4], mac_address[5]);
+
+	volatile uint32_t *mta_address = (uint32_t *) (memory_base_address + 0x5200);
+	for (int i = 0; i < 0x80; i++)
+		*mta_address = 0;
+*/
 }

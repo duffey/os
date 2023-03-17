@@ -13,4 +13,8 @@ uint8_t get_header_type(uint8_t bus, uint8_t device, uint8_t function);
 
 uint32_t get_bar_n(uint8_t bus, uint8_t device, uint8_t function, int n);
 
+uint8_t get_interrupt_line(uint8_t bus, uint8_t device, uint8_t function);
+
+uint8_t get_interrupt_pin(uint8_t bus, uint8_t device, uint8_t function);
+
 #endif

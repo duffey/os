@@ -59,6 +59,16 @@ uint32_t get_bar_n(uint8_t bus, uint8_t device, uint8_t function, int n)
 
 }
 
+uint8_t get_interrupt_line(uint8_t bus, uint8_t device, uint8_t function)
+{
+	return (uint8_t) pci_read_word(bus, device, function, 0x3C);
+}
+
+uint8_t get_interrupt_pin(uint8_t bus, uint8_t device, uint8_t function)
+{
+	return (uint8_t) (pci_read_word(bus, device, function, 0x3C) >> 8);
+}
+
 int get_bar_n_type(uint8_t bus, uint8_t device, uint8_t function, int n)
 {
 	uint32_t bar = get_bar_n(bus, device, function, n);
