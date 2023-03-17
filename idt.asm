@@ -1,16 +1,26 @@
 %macro isr_err_stub 1
 isr_stub_%+%1:
-    call exception_handler
-    iret
+    pushad
+    cld
+    call exception_handler_err
+    popad
+    add esp, 4
+    iretd
 %endmacro
 ; if writing for 64-bit, use iretq instead
 %macro isr_no_err_stub 1
 isr_stub_%+%1:
-    call exception_handler
-    iret
+    push 0
+    pushad
+    cld
+    call exception_handler_no_err
+    popad
+    add esp, 4
+    iretd
 %endmacro
 
-extern exception_handler
+extern exception_handler_err
+extern exception_handler_no_err
 isr_no_err_stub 0
 isr_no_err_stub 1
 isr_no_err_stub 2

@@ -188,12 +188,18 @@ static struct idt_entry_t idt[256];	// Create an array of IDT entries; aligned f
 
 static struct idtr_t idtr;
 
-void exception_handler(void);
-void exception_handler()
+void exception_handler_err(void);
+void exception_handler_err()
 {
-	terminal_writestring("hello idt hey\n");
+	terminal_writestring("hello idt err\n");
 	//__asm__ volatile ("cli; hlt");        // Completely hangs the computer
-	//__asm__ volatile ("iret");
+}
+
+void exception_handler_no_err(void);
+void exception_handler_no_err()
+{
+	terminal_writestring("hello idt no err\n");
+	//__asm__ volatile ("cli; hlt");        // Completely hangs the computer
 }
 
 void idt_set_descriptor(uint8_t vector, void *isr, uint8_t flags);
