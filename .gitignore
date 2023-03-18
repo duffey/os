@@ -1,4 +1,1 @@
-isodir
-*.o
-myos.bin
-myos.iso
+kernel.iso
