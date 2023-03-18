@@ -1,0 +1,1 @@
+indent && rm *.c~ *.o~

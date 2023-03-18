@@ -13,6 +13,8 @@ SECTIONS
     . = ALIGN(4096);
   }
 
+  . = ALIGN (CONSTANT (COMMONPAGESIZE));
+
   .data :
   {
      data = .; _data = .; __data = .;
@@ -29,4 +31,4 @@ SECTIONS
   }
 
   end = .; _end = .; __end = .;
-} 
+}

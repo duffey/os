@@ -3,14 +3,13 @@
 
 #include "monitor.h"
 
-struct multiboot;
-
-int main(struct multiboot *mboot_ptr)
+int main(void)
 {
     // Initialise the screen (by clearing it)
     monitor_clear();
     // Write out a sample string
     monitor_write("Hello, world!");
-    
+    monitor_printf("\nHello printf %04X", 42);
+
     return 0;
 }

@@ -3,6 +3,7 @@
 //             but rewritten for JamesM's kernel tutorials.
 
 #include "monitor.h"
+#include "./include/nanoprintf/nanoprintf.h"
 
 // The VGA framebuffer starts at 0xB8000.
 u16int *video_memory = (u16int *)0xB8000;
@@ -58,7 +59,7 @@ void monitor_put(char c)
     u8int backColour = 0;
     u8int foreColour = 15;
 
-    // The attribute byte is made up of two nibbles - the lower being the 
+    // The attribute byte is made up of two nibbles - the lower being the
     // foreground colour, and the upper the background colour.
     u8int  attributeByte = (backColour << 4) | (foreColour & 0x0F);
     // The attribute byte is the top 8 bits of the word we have to send to the
@@ -143,12 +144,12 @@ void monitor_write(char *c)
     }
 }
 
-void monitor_write_hex(u32int n)
+void monitor_printf(const char *fmt, ...)
 {
-    // TODO: implement this yourself!
-}
-
-void monitor_write_dec(u32int n)
-{
-    // TODO: implement this yourself!
+	char buffer[1024];
+	va_list val;
+	va_start(val, fmt);
+	npf_vsnprintf(buffer, 1024, fmt, val);
+	va_end(val);
+	monitor_write(buffer);
 }

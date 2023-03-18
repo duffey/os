@@ -1,1 +1,4 @@
+isodir
 kernel.iso
+*.o
+kernel
