@@ -2,7 +2,7 @@ set -x
 CC=i686-elf-gcc
 CFLAGS='-std=gnu99 -ffreestanding -O2 -Wall -Wextra'
 
-nasm -felf32 boot.s -o boot.o
+i686-elf-as boot.s -o boot.o
 nasm -felf32 gdt.s -o gdt.o
 nasm -felf32 interrupt.s -o interrupt.o
 
