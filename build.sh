@@ -12,8 +12,9 @@ $CC -c monitor.c -o monitor.o $CFLAGS
 $CC -c common.c -o common.o $CFLAGS
 $CC -c isr.c -o isr.o $CFLAGS
 $CC -c descriptor_tables.c -o descriptor_tables.o $CFLAGS
+$CC -c timer.c -o timer.o $CFLAGS
 
-$CC -T link.ld -o kernel -ffreestanding -O2 -nostdlib boot.o gdt.o interrupt.o nanoprintf.o monitor.o common.o isr.o descriptor_tables.o main.o -lgcc
+$CC -T link.ld -o kernel -ffreestanding -O2 -nostdlib boot.o gdt.o interrupt.o nanoprintf.o monitor.o common.o isr.o descriptor_tables.o timer.o main.o -lgcc
 
 if grub-file --is-x86-multiboot kernel; then
   echo multiboot confirmed

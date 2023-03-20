@@ -2,6 +2,7 @@
 //           Made for JamesM's tutorials <www.jamesmolloy.co.uk>
 
 #include "monitor.h"
+#include "timer.h"
 #include "descriptor_tables.h"
 
 int kernel_main(void)
@@ -15,6 +16,9 @@ int kernel_main(void)
 
     asm volatile("int $0x3");
     asm volatile("int $0x4");
+
+    asm volatile("sti");
+    init_timer(50);
 
     return 0;
 }
