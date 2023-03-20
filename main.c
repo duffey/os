@@ -20,5 +20,8 @@ int kernel_main(void)
     asm volatile("sti");
     init_timer(50);
 
+    while(1)
+        ;
+
     return 0;
 }
