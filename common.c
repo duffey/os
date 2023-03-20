@@ -65,15 +65,9 @@ int strcmp(char *str1, char *str2)
 // return dest.
 char *strcpy(char *dest, const char *src)
 {
-    do
-    {
-      *dest = *src;
-      dest++;
-      src++;
-    }
-    // TODO: bug?
-    while (*src != 0);
-    return dest;
+    while ((*dst++ = *src++))
+        ;
+    return dst;
 }
 
 // Concatenate the NULL-terminated string src onto
