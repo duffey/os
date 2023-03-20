@@ -65,9 +65,9 @@ int strcmp(char *str1, char *str2)
 // return dest.
 char *strcpy(char *dest, const char *src)
 {
-    while ((*dst++ = *src++))
+    while ((*dest++ = *src++))
         ;
-    return dst;
+    return dest;
 }
 
 // Concatenate the NULL-terminated string src onto
