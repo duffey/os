@@ -4,6 +4,7 @@
 #include "monitor.h"
 #include "timer.h"
 #include "descriptor_tables.h"
+#include "paging.h"
 
 int kernel_main(void)
 {
@@ -11,17 +12,14 @@ int kernel_main(void)
     init_descriptor_tables();
     // Initialise the screen (by clearing it)
     monitor_clear();
-    // Write out a sample string
-    monitor_write("Hello, world!\n");
 
-    asm volatile("int $0x3");
-    asm volatile("int $0x4");
+    initialise_paging();
+    monitor_write("Hello, paging world!\n");
 
-    asm volatile("sti");
-    init_timer(50);
+    u32int *ptr = (u32int*)0xA0000000;
+    u32int do_page_fault = *ptr;
 
-    while(1)
-        ;
+    monitor_printf("%d\n", do_page_fault);
 
     return 0;
 }
