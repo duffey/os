@@ -25,7 +25,8 @@ struct registers {
     uint64_t rdi, rsi;
     uint64_t rbp;
     uint64_t rdx, rcx, rbx, rax;
-    uint64_t int_no, err_code;
+    uint64_t int_no;
+    uint64_t err_code;
     uint64_t rip, cs, rflags, userrsp, ss;
 };
 

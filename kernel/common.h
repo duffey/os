@@ -6,6 +6,7 @@
 
 void outb(uint16_t port, uint8_t value);
 uint8_t inb(uint16_t port);
+void hcf(void);
 void *memcpy(void *dest, const void *src, size_t n);
 void *memset(void *s, int c, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
