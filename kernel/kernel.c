@@ -47,8 +47,8 @@ void _start(void) {
     terminal_request.response->write(terminal, hello_msg, strlen(hello_msg));
 
     init_idt();
-    register_interrupt_handler(3, breakpoint_handler);
-    asm volatile("int $0x3");
+    register_interrupt_handler(232, breakpoint_handler);
+    asm volatile("int $0xE8");
     for (;;) {}
 
     // We're done, just hang...
